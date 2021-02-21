@@ -3,6 +3,20 @@ import socket
 from IPy import IP
 
 
+def scan(target):
+    """Scans target using it's ip address or
+    domain name.
+
+    Args:
+        target (string): Can be domain name or ip address.
+    """
+
+    ipAddress = check_ip(target)
+    print(f'\n[Scanning] {str(target)}')
+    for port in range(1, 85):
+        scan_port(ipAddress, port)
+
+
 def check_ip(address):
     """Checks the ipAddress value, if it is
     ip address of the target then it returns it.
@@ -20,15 +34,16 @@ def check_ip(address):
         IP(address)
         return address
     except ValueError:
+        # Converts domain name into ip address
         return socket.gethostbyname(address)
 
 
 def scan_port(ipAdress, port):
     """Makes connection with target machine using ipAdress
     and then it scans for open ports.
-    
+
     Args:
-        ipAdress (string): Ip address of the machine you are targeting. 
+        ipAdress (string): Ip address of the machine you are targeting.
         port (integer): Number of port to be checked.
     """
     try:
@@ -39,11 +54,14 @@ def scan_port(ipAdress, port):
         # Connect to target machine.
         sock.connect((ipAdress, port))
         print(f"[+] Port {str(port)} is open!")
-    except:
-        print(f"[-] Port {str(port)} is closed.")
+    except ValueError:
+        pass
 
-ipAdress = input('[+] Enter Target To Scan: ')
-convert_address = check_ip(ipAdress)
 
-for port in range(75, 85):
-    scan_port(ipAdress, port)
+targets = input('[+] Enter Target To Scan (Use "," to split targets): ')
+
+if ',' in targets:
+    for target in targets.split(','):
+        scan(target.strip(' '))
+else:
+    scan(targets)
